@@ -49,6 +49,14 @@ const Home = () => {
     console.log('users: ', users);
   }, [data, isError, isLoading, isSuccess, users]);
 
+  React.useEffect(() => {
+    if (deleteUserMutation.isSuccess) {
+      toast.success('Deleted the data successfully!', {
+        id: 'promiseDelete',
+      });
+    }
+  }, [deleteUserMutation.isSuccess]);
+
   return (
     <div className="container mx-auto xl:px-20">
       <div className="w-full py-12 flex flex-col justify-center items-center gap-5">
@@ -75,6 +83,18 @@ const Home = () => {
                   className="card bg-base-100 shadow-xl"
                 >
                   <div className="card-body">
+                    {user.url && user.url !== '' && (
+                      <div className="w-full flex justify-start items-end mb-4">
+                        <div className="avatar">
+                          <div className="w-20 rounded-full">
+                            <img
+                              src={user.url}
+                              alt={`profile-image-user-${user.id}`}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
                     <h2 className="card-title">{user.name}</h2>
                     <p>Email: {user.email}</p>
                     <p>Phone: {user.phone}</p>

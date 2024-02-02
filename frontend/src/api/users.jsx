@@ -31,8 +31,11 @@ export const fetchSingleUser = async (id) => {
 };
 
 export const addUser = async (values) => {
+  console.log('ini gimana hasilnya', values);
   const response = await axios
-    .post('http://localhost:3000/users', values)
+    .post('http://localhost:3000/users', values, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
     .then((res) => {
       console.log('axios post: ', res.data);
       return res.data;
@@ -45,9 +48,11 @@ export const addUser = async (values) => {
   return response;
 };
 
-export const editUser = async (values) => {
+export const editUser = async (id, values) => {
   const response = axios
-    .patch('http://localhost:3000/users/' + values.id, values)
+    .patch('http://localhost:3000/users/' + id, values, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
     .then((res) => {
       console.log('axios patch: ', res.data);
       return res.data;

@@ -32,7 +32,7 @@ export const createUser = async (req, res) => {
   const email = req.body.email;
   const phone = req.body.phone;
   const file = req.files.file;
-  const fileSize = file.data.length;
+  // const fileSize = file.data.length;
   const ext = path.extname(file.name);
   const fileName = file.md5 + ext;
   const url = `${req.protocol}://${req.get(
@@ -42,10 +42,10 @@ export const createUser = async (req, res) => {
 
   if (!allowedType.includes(ext.toLowerCase()))
     return res.status(422).json({ msg: 'Invalid Images' });
-  if (fileSize > 5000000)
-    return res
-      .status(422)
-      .json({ msg: 'Image must be less than 5 MB' });
+  // if (fileSize > 5000000)
+  //   return res
+  //     .status(422)
+  //     .json({ msg: 'Image must be less than 5 MB' });
 
   file.mv(`./public/images/${fileName}`, async (err) => {
     try {
@@ -74,21 +74,24 @@ export const updateUser = async (req, res) => {
 
   if (!user) return res.status(404).json({ msg: 'No Data Found' });
 
+  console.log('ini apa', req.files);
+
   if (req.files === null) {
     fileName = user.image;
+    console.log('gambar enggak berubah');
   } else {
     const file = req.files.file;
-    const fileSize = file.data.length;
+    // const fileSize = file.data.length;
     const ext = path.extname(file.name);
     fileName = file.md5 + ext;
     const allowedType = ['.png', '.jpg', '.jpeg'];
 
     if (!allowedType.includes(ext.toLowerCase()))
       return res.status(422).json({ msg: 'Invalid Images' });
-    if (fileSize > 5000000)
-      return res
-        .status(422)
-        .json({ msg: 'Image must be less than 5 MB' });
+    // if (fileSize > 5000000)
+    //   return res
+    //     .status(422)
+    //     .json({ msg: 'Image must be less than 5 MB' });
 
     const filepath = `./public/images/${user.image}`;
     fs.unlinkSync(filepath);
@@ -96,6 +99,8 @@ export const updateUser = async (req, res) => {
     file.mv(`./public/images/${fileName}`, (err) => {
       if (err) return res.status(500).json({ msg: err.message });
     });
+
+    console.log('gambar sudah berubah');
   }
 
   const name = req.body.name;

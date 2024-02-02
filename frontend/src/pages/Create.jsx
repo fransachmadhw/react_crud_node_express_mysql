@@ -7,11 +7,19 @@ import { addUser } from '../api/users';
 // import { v4 as uuidv4 } from 'uuid';
 
 const Create = () => {
-  const [values, setValues] = React.useState({
-    name: '',
-    email: '',
-    phone: '',
-  });
+  // const [values, setValues] = React.useState({
+  //   name: '',
+  //   email: '',
+  //   phone: '',
+  //   image: '',
+  // });
+
+  const [name, setName] = React.useState('');
+  const [email, setEmail] = React.useState('');
+  const [phone, setPhone] = React.useState('');
+  const [file, setFile] = React.useState('');
+
+  const [preview, setPreview] = React.useState('');
 
   const [isEmpty, setIsEmpty] = React.useState(true);
 
@@ -26,12 +34,25 @@ const Create = () => {
 
   const navigate = useNavigate();
 
+  const loadImage = (e) => {
+    const imageUpload = e.target.files[0];
+    setFile(imageUpload);
+    setPreview(URL.createObjectURL(imageUpload));
+  };
+
   const handleSubmit = (event) => {
     event.preventDefault();
-    createUserMutation.mutate({
-      ...values,
-      // id: uuidv4(),
-    });
+
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('email', email);
+    formData.append('phone', phone);
+
+    if (file !== '') {
+      formData.append('file', file);
+    }
+
+    createUserMutation.mutate(formData);
   };
 
   React.useEffect(() => {
@@ -57,22 +78,14 @@ const Create = () => {
   ]);
 
   React.useEffect(() => {
-    if (
-      values.name === '' ||
-      values.email === '' ||
-      values.phone === ''
-    ) {
+    if (name === '' || email === '' || phone === '' || file === '') {
       setIsEmpty(true);
     }
 
-    if (
-      values.name !== '' &&
-      values.email !== '' &&
-      values.phone !== ''
-    ) {
+    if (name !== '' && email !== '' && phone !== '' && file !== '') {
       setIsEmpty(false);
     }
-  }, [values.email, values.name, values.phone]);
+  }, [email, file, name, phone]);
 
   return (
     <div className="w-full">
@@ -82,6 +95,30 @@ const Create = () => {
           <div className="card xl:w-[50%] bg-base-100 shadow-xl">
             <div className="card-body">
               <form onSubmit={handleSubmit}>
+                <div className="w-full grid grid-cols-2 gap-4 p-0 m-0">
+                  <label className="form-control w-full max-w-xs">
+                    <div className="label">
+                      <span className="label-text">
+                        Pick a profile image
+                      </span>
+                    </div>
+                    <input
+                      type="file"
+                      onChange={loadImage}
+                      className="file-input file-input-md file-input-bordered file-input-primary w-full max-w-xs"
+                    />
+                  </label>
+                  {preview && preview !== '' && (
+                    <div className="w-full flex justify-center items-end">
+                      <div className="avatar">
+                        <div className="w-24 rounded-full">
+                          <img src={preview} alt="image-upload" />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 <label className="form-control w-full max-w-xs">
                   <div className="label">
                     <span className="label-text">Input the name</span>
@@ -94,10 +131,7 @@ const Create = () => {
                     required
                     className="input input-bordered w-full max-w-xs"
                     onChange={(element) =>
-                      setValues({
-                        ...values,
-                        name: element.target.value,
-                      })
+                      setName(element.target.value)
                     }
                   />
                 </label>
@@ -115,10 +149,7 @@ const Create = () => {
                     required
                     className="input input-bordered w-full max-w-xs"
                     onChange={(element) =>
-                      setValues({
-                        ...values,
-                        email: element.target.value,
-                      })
+                      setEmail(element.target.value)
                     }
                   />
                 </label>
@@ -136,10 +167,7 @@ const Create = () => {
                     required
                     className="input input-bordered w-full max-w-xs"
                     onChange={(element) =>
-                      setValues({
-                        ...values,
-                        phone: element.target.value,
-                      })
+                      setPhone(element.target.value)
                     }
                   />
                 </label>
@@ -153,7 +181,7 @@ const Create = () => {
                       Adding User Confirmation
                     </h3>
                     <p className="py-4">
-                      Are you sure want to add {values.name}`s data?
+                      Are you sure want to add {name}`s data?
                     </p>
                     <div className="modal-action">
                       <form method="dialog">

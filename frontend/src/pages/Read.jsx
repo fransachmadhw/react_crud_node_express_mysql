@@ -43,6 +43,18 @@ const Read = () => {
         </h1>
         <div className="card xl:w-[50%] bg-base-100 shadow-xl">
           <div className="card-body">
+            {user && user.url !== '' && (
+              <div className="w-full flex justify-start items-end mb-4">
+                <div className="avatar">
+                  <div className="w-20 rounded-full">
+                    <img
+                      src={user.url}
+                      alt={`profile-image-user-${user.id}`}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
             <h2 className="card-title">{user && user.name}</h2>
             <p>Email: {user && user.email}</p>
             <p>Phone: {user && user.phone}</p>

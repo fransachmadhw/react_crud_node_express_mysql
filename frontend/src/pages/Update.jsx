@@ -9,10 +9,17 @@ import {
   useQuery,
 } from '@tanstack/react-query';
 import { editUser, fetchSingleUser } from '../api/users';
+import axios from 'axios';
 
 const Update = () => {
   // const [data, setData] = React.useState([]);
-  const [values, setValues] = React.useState();
+  // const [values, setValues] = React.useState();
+
+  const [name, setName] = React.useState('');
+  const [email, setEmail] = React.useState('');
+  const [phone, setPhone] = React.useState('');
+  const [file, setFile] = React.useState('');
+  const [preview, setPreview] = React.useState('');
 
   const { id } = useParams();
   const navigate = useNavigate();
@@ -30,9 +37,44 @@ const Update = () => {
     },
   });
 
-  const handleSubmit = (event) => {
+  const loadImage = (e) => {
+    const imageUpload = e.target.files[0];
+    setFile(imageUpload);
+    setPreview(URL.createObjectURL(imageUpload));
+  };
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    editUserMutation.mutate(values);
+
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('email', email);
+    formData.append('phone', phone);
+    formData.append('file', file);
+
+    // editUserMutation.mutate(id, formData);
+
+    try {
+      await axios.patch(
+        `http://localhost:3000/users/${id}`,
+        formData,
+        {
+          headers: {
+            'Content-type': 'multipart/form-data',
+          },
+        }
+      );
+      toast.success('Updated the data successfully!', {
+        id: 'promiseUpdate',
+      });
+      navigate('/');
+    } catch (error) {
+      console.log(error);
+      toast.error('Error while updating the data!', {
+        id: 'promiseUpdate',
+      });
+      throw error;
+    }
   };
 
   React.useEffect(() => {
@@ -55,7 +97,27 @@ const Update = () => {
   }, [isError, isLoading, isSuccess]);
 
   React.useEffect(() => {
-    setValues(data);
+    if (data) {
+      setName(data.name);
+    }
+  }, [data]);
+
+  React.useEffect(() => {
+    if (data) {
+      setEmail(data.email);
+    }
+  }, [data]);
+
+  React.useEffect(() => {
+    if (data) {
+      setPhone(data.phone);
+    }
+  }, [data]);
+
+  React.useEffect(() => {
+    if (data && data.url) {
+      setPreview(data.url);
+    }
   }, [data]);
 
   React.useEffect(() => {
@@ -89,99 +151,110 @@ const Update = () => {
         <div className="card xl:w-[50%] bg-base-100 shadow-xl">
           <div className="card-body">
             <form onSubmit={handleSubmit}>
-              {values && (
-                <>
+              <>
+                <div className="w-full grid grid-cols-2 gap-4 p-0 m-0">
                   <label className="form-control w-full max-w-xs">
                     <div className="label">
-                      <span className="label-text font-semibold">
-                        Name
+                      <span className="label-text">
+                        Pick a profile image
                       </span>
                     </div>
                     <input
-                      type="text"
-                      placeholder="Name"
-                      name="name"
-                      id="name"
-                      value={values.name}
-                      className="input input-bordered w-full max-w-xs"
-                      onChange={(element) =>
-                        setValues({
-                          ...values,
-                          name: element.target.value,
-                        })
-                      }
+                      type="file"
+                      onChange={loadImage}
+                      className="file-input file-input-md file-input-bordered file-input-primary w-full max-w-xs"
                     />
                   </label>
-                  <label className="form-control w-full max-w-xs">
-                    <div className="label">
-                      <span className="label-text font-semibold">
-                        Email
-                      </span>
-                    </div>
-                    <input
-                      type="email"
-                      placeholder="Email"
-                      name="email"
-                      id="email"
-                      value={values.email}
-                      className="input input-bordered w-full max-w-xs"
-                      onChange={(element) =>
-                        setValues({
-                          ...values,
-                          email: element.target.value,
-                        })
-                      }
-                    />
-                  </label>
-                  <label className="form-control w-full max-w-xs">
-                    <div className="label">
-                      <span className="label-text font-semibold">
-                        Phone number
-                      </span>
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="Phone"
-                      name="phone"
-                      id="phone"
-                      value={values.phone}
-                      className="input input-bordered w-full max-w-xs"
-                      onChange={(element) =>
-                        setValues({
-                          ...values,
-                          phone: element.target.value,
-                        })
-                      }
-                    />
-                  </label>
-                  <dialog
-                    id="modal_update"
-                    className="modal modal-bottom sm:modal-middle"
-                  >
-                    <div className="modal-box">
-                      <h3 className="font-bold text-lg">
-                        Updating User Confirmation
-                      </h3>
-                      <p className="py-4">
-                        Are you sure want to update {values.name}`s
-                        data?
-                      </p>
-                      <div className="modal-action">
-                        <form method="dialog">
-                          {/* if there is a button in form, it will close the modal */}
-                          <button className="btn">No</button>
-                        </form>
-                        <button
-                          type="submit"
-                          className="btn btn-primary"
-                        >
-                          Yes
-                        </button>
+                  {preview && preview !== '' && (
+                    <div className="w-full flex justify-center items-end">
+                      <div className="avatar">
+                        <div className="w-24 rounded-full">
+                          <img src={preview} alt="image-upload" />
+                        </div>
                       </div>
                     </div>
-                  </dialog>
-                </>
-              )}
+                  )}
+                </div>
+                <label className="form-control w-full max-w-xs">
+                  <div className="label">
+                    <span className="label-text font-semibold">
+                      Name
+                    </span>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Name"
+                    name="name"
+                    id="name"
+                    value={name && name}
+                    className="input input-bordered w-full max-w-xs"
+                    onChange={(element) =>
+                      setName(element.target.value)
+                    }
+                  />
+                </label>
+                <label className="form-control w-full max-w-xs">
+                  <div className="label">
+                    <span className="label-text font-semibold">
+                      Email
+                    </span>
+                  </div>
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    name="email"
+                    id="email"
+                    value={email && email}
+                    className="input input-bordered w-full max-w-xs"
+                    onChange={(element) =>
+                      setEmail(element.target.value)
+                    }
+                  />
+                </label>
+                <label className="form-control w-full max-w-xs">
+                  <div className="label">
+                    <span className="label-text font-semibold">
+                      Phone number
+                    </span>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Phone"
+                    name="phone"
+                    id="phone"
+                    value={phone && phone}
+                    className="input input-bordered w-full max-w-xs"
+                    onChange={(element) =>
+                      setPhone(element.target.value)
+                    }
+                  />
+                </label>
+                <dialog
+                  id="modal_update"
+                  className="modal modal-bottom sm:modal-middle"
+                >
+                  <div className="modal-box">
+                    <h3 className="font-bold text-lg">
+                      Updating User Confirmation
+                    </h3>
+                    <p className="py-4">
+                      Are you sure want to update {name}`s data?
+                    </p>
+                    <div className="modal-action">
+                      <form method="dialog">
+                        {/* if there is a button in form, it will close the modal */}
+                        <button className="btn">No</button>
+                      </form>
+                      <button
+                        type="submit"
+                        className="btn btn-primary"
+                      >
+                        Yes
+                      </button>
+                    </div>
+                  </div>
+                </dialog>
+              </>
 
               {isLoading && (
                 <div className="w-full bg-transparent flex justify-center">
