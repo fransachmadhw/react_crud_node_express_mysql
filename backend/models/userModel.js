@@ -9,8 +9,6 @@ const User = db.define(
     name: DataTypes.STRING,
     email: DataTypes.STRING,
     phone: DataTypes.STRING,
-    image: DataTypes.STRING,
-    url: DataTypes.STRING,
   },
   {
     freezeTableName: true,
